@@ -1,0 +1,64 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://127.0.0.1:3306/reed_user_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+  redis:
+    database: 0
+    port: 6379
+    host: 127.0.0.1
+#  data:
+#    mongodb:
+#      database: reed_user_center
+#      host: 127.0.0.1
+#      port: 27017
+  kafka:
+    bootstrap-servers: 127.0.0.1:2181
+    producer:
+      acks: 1
+      audit-topic: user_audit_log
+      batch-size: 16384
+      buffer-memory: 33554432
+      client-id: 0
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      max-request-size: 30
+      retries: 0
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      auto-commit-interval: 1S
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      group-id: staff
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 1000
+      properties:
+        security:
+          protocol: PLAINTEXT
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: manual_immediate
+      batch-listener: true
+      concurrency: 5
+      concurrencys: 3,6
+      missing-topics-fatal: false
+      poll-timeout: 1000
+      type: batch
+
+
+
+reed:
+  user-center:
+    auto-lock-time: 1
+    lock-type: 5
+  minio:
+    access-key: 123
+    secret-key: 222
+    endpoint: 123456
+  platform:
+    prefix: user_account_relation
+  ext-table:
+    database: reed_user_center
+    prefix: user_ext_value_
+    primary-key: user_id
+

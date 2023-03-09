@@ -33,4 +33,5 @@ build/
 ### log ###
 /logs/
 
-/src/main/resources/*.yml
+/src/main/resources/reed.yml
+/src/main/resources/application.yml.yml

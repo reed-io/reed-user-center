@@ -4,23 +4,88 @@ import com.alibaba.fastjson2.JSONArray;
 import org.reed.core.user.dao.AppUserMapper;
 import org.reed.core.user.define.UserCenterErrorCode;
 import org.reed.core.user.define.UserCenterException;
+import org.reed.core.user.entity.AppUserInfo;
+import org.reed.core.user.utils.Entity2JsonUtils;
 import org.reed.utils.CollectionUtil;
 import org.reed.utils.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AppUserService {
 	@Resource
 	private AppUserMapper appUserMapper;
 
-	@Value("${ext-table-prefix}")
+	@Value("${reed.ext-table.prefix}")
 	private String tablePrefix;
+
+
+	/**
+	 * <pre>
+	 *
+	 * 场景: 添加应用用户关联，已存在不重复添加，返回应用用户关联数据
+	 *
+	 * </pre>
+	 *
+	 * @author lgs
+	 * @time 2022年6月15日 上午11:11:36
+	 * @param appCode
+	 * @param userIds
+	 * @return
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public JSONArray addAppUsers(String appCode, List<String> userIds) {
+		// 无效应用用户
+		appUserMapper.deleteNotExistsAppUsers();
+		// 应用用户已关联
+		Set<String> appUserIdSet = appUserMapper.selectAppUsers(appCode, userIds).stream()
+				.map(AppUserInfo::getUserId).collect(Collectors.toSet());
+		// 存在用户
+		Set<String> existsUserIdSet =
+				new HashSet<>(appUserMapper.selectUsers(userIds));
+		List<AppUserInfo> saveAppUsers = new ArrayList<>();
+		userIds.forEach(item -> {
+			if (!appUserIdSet.contains(item) && existsUserIdSet.contains(item)) {
+				AppUserInfo appUserInfo = new AppUserInfo();
+				appUserInfo.setAppCode(appCode);
+				appUserInfo.setUserId(item);
+				saveAppUsers.add(appUserInfo);
+			}
+		});
+		if (!CollectionUtils.isEmpty(saveAppUsers)) {
+			appUserMapper.insertAppUsers(saveAppUsers);
+		}
+		return Entity2JsonUtils.parseJson(appUserMapper.selectAppUsers(appCode, userIds));
+	}
+
+	/**
+	 * <pre>
+	 *
+	 * 场景: 返回应用人员关联数据
+	 *
+	 * </pre>
+	 *
+	 * @author lgs
+	 * @time 2022年6月15日 上午11:13:47
+	 * @param appCode
+	 * @param userIds
+	 * @return
+	 */
+	public JSONArray appUsers(String appCode, List<String> userIds) {
+		// 无效应用用户
+		appUserMapper.deleteNotExistsAppUsers();
+		return Entity2JsonUtils.parseJson(appUserMapper.selectAppUsers(appCode, userIds));
+	}
 
 	public void addUsers(String appCode, JSONArray userJa) throws UserCenterException {
 		String extraTableName = tablePrefix + appCode;

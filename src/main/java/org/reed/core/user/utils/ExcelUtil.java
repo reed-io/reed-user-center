@@ -2,7 +2,7 @@ package org.reed.core.user.utils;
 
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.reed.core.user.entity.SearchUserDTO;
+import org.reed.core.user.entity.UserInfo;
 import org.reed.log.ReedLogger;
 
 import javax.servlet.http.HttpServletResponse;
@@ -104,10 +104,10 @@ public class ExcelUtil {
         for (int i = 0; i < list.size(); i++) {
             Map<String, Object> map = new HashMap<>();
             T item = list.get(i);
-            if (item instanceof SearchUserDTO) {
-                SearchUserDTO searchUserDTO = (SearchUserDTO) item;
-                map.putAll(MapUtil.beanToMap(searchUserDTO.getUser()));
-                map.putAll(searchUserDTO.getExtAttrMap());
+            if (item instanceof UserExcelData) {
+                UserExcelData userExcelData = (UserExcelData) item;
+                map.putAll(MapUtil.beanToMap(userExcelData.getUserInfo()));
+                map.putAll(userExcelData.getExtAttrMap());
             } else {
                 map.putAll(MapUtil.beanToMap(item));
             }
@@ -116,5 +116,26 @@ public class ExcelUtil {
             }
         }
         return content;
+    }
+}
+
+class UserExcelData {
+    private UserInfo userInfo;
+    private Map<String, Object> extAttrMap;
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public Map<String, Object> getExtAttrMap() {
+        return this.extAttrMap;
+    }
+
+    public void setExtAttrMap(Map<String, Object> extAttrMap) {
+        this.extAttrMap = extAttrMap;
     }
 }

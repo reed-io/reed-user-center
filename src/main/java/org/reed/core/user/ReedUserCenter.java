@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationContext;
 
 public class ReedUserCenter extends SpringBootBootup {
 
-    private final String REED_USER_CENTER = "REED_USER_CENTER";
+    private final static String REED_USER_CENTER = "REED_USER_CENTER";
 
     public static void main(String[] args) {
         new ReedUserCenter().start(args);
