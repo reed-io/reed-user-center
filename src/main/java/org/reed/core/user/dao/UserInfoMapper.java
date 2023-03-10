@@ -70,7 +70,7 @@ public interface UserInfoMapper {
 
     @Select({
             "select ", baseColumns, " from user_info ",
-            "where login_name = #{loginName} and credential_value = #{credentialValue}"
+            "where login_name = #{loginName} and credential_value = #{credentialValue} and is_deleted = 0"
     })
     @ResultMap("userInfoBaseResult")
     UserInfo selectByLoginNameCredentialValue(@Param("loginName") String loginName, @Param("credentialValue") String credentialValue);
@@ -251,10 +251,7 @@ public interface UserInfoMapper {
             " and is_deleted = #{isDeleted}",
             "</if>",
             "<if test=\"employeeNumber != null and employeeNumber != ''\">",
-            " and employee_number = #{employeeNumber}",
-            "</if>",
-            "<if test=\"tempEmployeeNumber != null and tempEmployeeNumber != ''\">",
-            " and temp_employee_number = #{tempEmployeeNumber}",
+            " and (employee_number = #{employeeNumber} or temp_employee_number = #{employeeNumber})",
             "</if>",
             "</where>",
             "</script>"
@@ -342,6 +339,20 @@ public interface UserInfoMapper {
     })
     @ResultMap("userInfoBaseResult")
     List<UserInfo> selectByConditions(UserInfo userInfo);
+
+
+    @Select({
+            "<script>",
+            " select ", baseColumns, " from user_info ",
+            " where user_id in (",
+            "<foreach collection='userIds' item='userId' separator=','>",
+            "#{userId}",
+            "</foreach>",
+            ")",
+            "</script>",
+    })
+    @ResultMap("userInfoBaseResult")
+    List<UserInfo> selectByUserIds(@Param("userIds") List<Long> userIds);
 
     @Insert({
             "<script>",

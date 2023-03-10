@@ -4,6 +4,7 @@ import org.reed.core.user.dao.UserInfoMapper;
 import org.reed.core.user.define.UserCenterConstants;
 import org.reed.core.user.entity.UserInfo;
 import org.reed.core.user.entity.UserStatistics;
+import org.reed.core.user.utils.Entity2JsonUtils;
 import org.reed.utils.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -56,28 +57,38 @@ public class UserStatisticsService {
 
     public List<UserStatistics> findNearlyWeek() {
         List<UserStatistics> userStatisticsList = new ArrayList<>();
-        Calendar calendar = new GregorianCalendar();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         for (int i = 0; i < 7; i++) {
-            calendar.add(Calendar.DATE, -1);
-            String date = TimeUtil.nowDate();
+            String date = TimeUtil.format(TimeUtil.DATE_FORMAT, calendar.getTime());
             Object obj = redisTemplate.opsForValue().get(CACHE_KEY_PREFIX + date);
+
             if (obj != null) {
+                System.err.println(Entity2JsonUtils.parseJson(obj));
                 userStatisticsList.add((UserStatistics) obj);
             } else {
                 UserStatistics userStatistics = new UserStatistics();
-                userStatistics.setDay(date);
+                userStatistics.setDay(TimeUtil.format(TimeUtil.DATE_FORMAT, calendar.getTime()));
                 userStatistics.setIncrease(0);
                 userStatisticsList.add(userStatistics);
             }
+            calendar.add(Calendar.DATE, -1);
+            calendar.setTime(calendar.getTime());
         }
-        return userStatisticsList;
+        List<UserStatistics> userStatisticsListResult = new LinkedList<>();
+        int i = userStatisticsList.size() - 1;
+        while (i > 0) {
+            userStatisticsListResult.add(userStatisticsList.get(i));
+            i--;
+        }
+        return userStatisticsListResult;
     }
 
 
     public Map<String, Object> statisticsUser() {
         UserStatistics today = this.findTodayStatistics();
         List<UserStatistics> week = this.findNearlyWeek();
+        System.err.println(week);
         List<Map<String, Object>> increaseList = new ArrayList<>();
         if (week != null) {
             for (UserStatistics userStatistics : week) {

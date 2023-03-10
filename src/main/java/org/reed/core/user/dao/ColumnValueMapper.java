@@ -46,20 +46,20 @@ public interface ColumnValueMapper {
             @Result(column = "main_create_user", property = "createUser"),
     })
     @Select({"<script>",
-            "select main.id main_id, main.name main_name,main.gender max_gender,",
+            "select main.user_id main_user_id, main.name main_name,main.gender max_gender,",
             "main.mobile main_mobile,main.fax main_fax,main.address main_address,main.postcode main_postcode,",
             "main.email main_email,main.website main_website,main.blog main_blog,main.msn main_msn,main.qq main_qq,",
             "main.remark main_remark,main.birthday main_birthday,main.lock_reason main_lock_reason,",
-            "main.unlock_time main_unlock_time,main.lock_time main_lock_time,main,",
+            "main.unlock_time main_unlock_time,main.lock_time main_lock_time,",
             "main.is_enable main_is_enable,main.is_deleted main_is_deleted,main.login_name main_login_name,main.employee_number main_employee_number,",
             "main.temp_employee_number main_temp_employee_number,main.id_type main_id_type,main.id_number main_id_number,main.landline main_landline,",
             "main.politics_info main_politics_info,main.avatar main_avatar,main.credential_value main_credential_value,",
-            "main.expiration_date main_expiration_date,main.create_time main_create_time,",
+            "main.credential_expire_time main_credential_expire_time,main.create_time main_create_time,",
             "main.update_time main_update_time,main.create_user main_create_user,",
             "<foreach collection='columns' item='column' separator=','>",
             "extra.${column} extra_${column}",
             "</foreach>",
-            " from user_info main right join ${extraTableName} extra on main.id = extra.user_id ",
+            " from user_info main right join ${extraTableName} extra on main.user_id = extra.user_id ",
             "<where>",
             "<if test='userInfo != null'>",
 
@@ -157,10 +157,10 @@ public interface ColumnValueMapper {
             "</foreach>",
             "where user_id = #{userId}",
             "</script>"})
-    int updateExtraData(String extraTableName, List<Map<String, Object>> extras, String userId);
+    int updateExtraData(String extraTableName, List<Map<String, Object>> extras, Long userId);
 
     @Select("select * from ${extraTableName} where user_id = #{userId}")
-    Map<String, Object> findByUserId(String extraTableName, String userId);
+    Map<String, Object> findByUserId(String extraTableName, Long userId);
 
     @Select({
             "<script>",

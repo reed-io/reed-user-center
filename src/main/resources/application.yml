@@ -52,9 +52,9 @@ reed:
     auto-lock-time: 1
     lock-type: 5
   minio:
-    access-key: 123
-    secret-key: 222
-    endpoint: 123456
+    access-key: user
+    secret-key: password
+    endpoint: http://localhost:19000
   platform:
     prefix: user_account_relation
   ext-table:

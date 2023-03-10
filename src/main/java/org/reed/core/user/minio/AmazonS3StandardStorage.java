@@ -11,6 +11,7 @@ import org.reed.utils.EnderUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -32,6 +33,8 @@ public class AmazonS3StandardStorage {
 
     @Value("${reed.minio.secret-key}")
     private String minioSecretKey;
+
+    public static final long MINIO_MINI_PART_SIZE = 5 *1024 *1024L;
 
     @PostConstruct
     private void init() {
@@ -77,11 +80,13 @@ public class AmazonS3StandardStorage {
         }
         try {
             String filename = CommonUtil.getSnowFlakeId() + "_" + file.getOriginalFilename();
-            minioClient.uploadObject(UploadObjectArgs.builder()
-                    .filename(filename)
-                    .bucket(bucketName)
-                    .build());
-            return bucketName + "/" + filename;
+            long partSize = Math.max(file.getSize(), MINIO_MINI_PART_SIZE);
+            minioClient.putObject(PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(filename)
+                            .stream(file.getInputStream(), file.getSize(), partSize)
+                            .build());
+            return UriEncoder.encode(bucketName) + "/" + UriEncoder.encode(filename);
         } catch (ErrorResponseException | InternalException | InvalidKeyException | InvalidResponseException |
                  IOException | NoSuchAlgorithmException | ServerException | XmlParserException | InvalidBucketNameException |
                  InsufficientDataException e) {

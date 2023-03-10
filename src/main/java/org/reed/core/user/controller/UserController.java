@@ -65,7 +65,6 @@ public class UserController {
      * 新增用户+account
      * @param name
      * @param gender
-     * @param loginName
      * @param employeeNumber
      * @param tempEmployeeNumber
      * @param idType
@@ -177,8 +176,8 @@ public class UserController {
     }
 
 
-    @DeleteMapping("user}")
-    public ReedResult<String> batchDeleteUser(String userIds) {
+    @DeleteMapping("users")
+    public ReedResult<String> batchDeleteUser(@RequestParam(required = false, value = "user_ids") String userIds) {
         try {
             JSONArray userIdJa = JSONArray.parse(userIds);
             userService.batchDeleteUser(userIdJa);
@@ -376,22 +375,6 @@ public class UserController {
     }
 
 
-    @PostMapping(value = "user/avatar/{user_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ReedResult<JSONObject> uploadUserAvatar(@PathVariable(value = "user_id") Long userId,
-                                                  @RequestPart("avatar") MultipartFile file) {
-        try {
-            String avatarUrl = userService.uploadAvatar(file, HEAD_BUCKET_NAME, userId);
-            if (!StringUtil.isEmpty(avatarUrl)) {
-                JSONObject result = new JSONObject();
-                result.put("avatar_url", avatarUrl);
-                return new ReedResult.Builder<JSONObject>().data(result).build();
-            }
-            return new ReedResult.Builder<JSONObject>().code(UserCenterErrorCode.USER_AVATAR_UPLOAD_ERROR).build();
-        }catch (ReedBaseException e) {
-            return new ReedResult.Builder<JSONObject>().code(UserCenterErrorCode.USER_AVATAR_UPLOAD_ERROR).build();
-        }
-
-    }
 
     @PostMapping(value = "user/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ReedResult<JSONObject> uploadAvatar(@RequestPart("avatar") MultipartFile file) {
@@ -431,8 +414,10 @@ public class UserController {
 
 
 
-    @PostMapping("user/lock/records")
-    public ReedResult<JSONObject> selectLockInfoByUserId(Long userId, Integer pageNum, Integer pageSize) throws UserCenterException {
+    @GetMapping("user/lock/records")
+    public ReedResult<JSONObject> selectLockInfoByUserId(@RequestParam(value = "user_id", required = false) Long userId,
+                                                         @RequestParam(value = "page_num") Integer pageNum,
+                                                         @RequestParam(value = "page_size") Integer pageSize) {
         return new ReedResult.Builder<JSONObject>()
                 .data(userLockInfoService.getUserLockInfo(userId, pageNum, pageSize))
                 .build();

@@ -41,11 +41,17 @@ public class ColumnValueService {
     @Autowired
     private ColumnDefineService defineService;
 
-    public JSONObject getUserExtraByUserId (String appCode, String userId) throws ExtraBusinessException {
+    public JSONObject getUserExtraByUserId (String appCode, Long userId) throws ExtraBusinessException {
         try {
+
             String extraTableName = tablePrefix + appCode;
+            Map<String, Object> userExtraInfo = columnValueDao.findByUserId(extraTableName, userId);
+            if (userExtraInfo == null) {
+                throw new ExtraBusinessException(UserCenterErrorCode.APP_USER_NOT_EXISTS_ERROR);
+            }
 //            Map<String, ColumnDefine> stringColumnDefineMap = ExtDefineApplication.tableColumnMap.get(extraTableName);
             Map<String, ColumnDefine> stringColumnDefineMap = defineService.getColumnMap(extraTableName);
+            System.err.println(stringColumnDefineMap);
             Map<String, Object> resultMap = columnValueDao.findByUserId(extraTableName, userId);
             JSONObject resultJson = new JSONObject();
             for (String columnCode : stringColumnDefineMap.keySet()) {
@@ -56,6 +62,7 @@ public class ColumnValueService {
                     resultJson.put(columnCode, null);
                 }
             }
+            System.err.println(resultMap);
             for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
                 ColumnDefine columnDefine = stringColumnDefineMap.get(entry.getKey());
                 ColumnDataTypeEnum columnDataTypeEnum = ColumnDataTypeEnum.getEnum(columnDefine.getColumnType());
@@ -100,14 +107,14 @@ public class ColumnValueService {
         return columnMap;
     }
 
-    public JSONObject getUserExtraInfo (JSONObject extraDataJson, String appCode, Integer pageIndex, Integer pageSize) throws ReedBaseException {
+    public JSONObject getUserExtraInfo (JSONObject extraDataJson, String appCode, Integer pageNum, Integer pageSize) throws ReedBaseException {
         try {
             String extraTableName = tablePrefix + appCode;
 //            Map<String, ColumnDefine> stringColumnDefineMap = ExtDefineApplication.tableColumnMap.get(extraTableName);
             Map<String, ColumnDefine> stringColumnDefineMap = defineService.getColumnMap(extraTableName);
             
-            if (pageIndex != null && pageSize != null) {
-                PageHelper.startPage(pageIndex, pageSize);
+            if (pageNum != null && pageSize != null) {
+                PageHelper.startPage(pageNum, pageSize);
             }
 
             List<Map<String, String>> paramMap = new ArrayList<>();
@@ -141,7 +148,7 @@ public class ColumnValueService {
             List<Map<String, Object>> resultData = columnValueDao.findByExtraData(extraTableName, paramMap);
             long total = resultData.size();
 
-            if (pageIndex != null && pageSize != null) {
+            if (pageNum != null && pageSize != null) {
                 PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(resultData);
                 total = pageInfo.getTotal();
                 resultData = pageInfo.getList();
@@ -253,7 +260,7 @@ public class ColumnValueService {
 
     }
 
-    public void modifyExtraData(String appCode, JSONArray userExtraJa, String userId) throws ExtraBusinessException {
+    public void modifyExtraData(String appCode, JSONArray userExtraJa, Long userId) throws ExtraBusinessException {
         //扩展表表名
         try {
             String extraTableName = tablePrefix + appCode;
@@ -301,7 +308,7 @@ public class ColumnValueService {
     }
 
 
-    public void modifyExtraData(String appCode, JSONObject userExtraJson, String userId) throws ExtraBusinessException {
+    public void modifyExtraData(String appCode, JSONObject userExtraJson, Long userId) throws ExtraBusinessException {
         //扩展表表名
         try {
             String extraTableName = tablePrefix + appCode;
@@ -424,7 +431,7 @@ public class ColumnValueService {
 
 
 
-    public JSONObject search(Integer pageIndex, Integer pageSize, String appCode, JSONObject conditionJson) throws ExtraBusinessException {
+    public JSONObject search(Integer pageNum, Integer pageSize, String appCode, JSONObject conditionJson) throws ExtraBusinessException {
 
         String extraTableName = tablePrefix + appCode;
 //        Map<String, ColumnDefine> stringColumnDefineMap = ExtDefineApplication.tableColumnMap.get(extraTableName);
@@ -436,7 +443,7 @@ public class ColumnValueService {
         }
 
         List<Map<String, String>> extraSearchConditions = new ArrayList<>();
-        JSONObject extraDataJson = conditionJson.getJSONObject("extraData");
+        JSONObject extraDataJson = conditionJson.getJSONObject("extra_data");
         if (extraDataJson == null) {
             throw new ExtraBusinessException(UserCenterErrorCode.REQUEST_PARAM_MISS,
                     CodeDescTranslator.explain(UserCenterErrorCode.REQUEST_PARAM_MISS, null, "param:extraData"));
@@ -473,10 +480,10 @@ public class ColumnValueService {
         long total;
 
         //分页
-        if (pageIndex != null && pageSize != null) {
-            pageIndex = pageIndex > 0 ? pageIndex : 1;
+        if (pageNum != null && pageSize != null) {
+            pageNum = pageNum > 0 ? pageNum : 1;
             pageSize = pageSize > 0 ? pageSize : 10;
-            int start = (pageIndex - 1) * pageSize;
+            int start = (pageNum - 1) * pageSize;
             searchResult = columnValueDao.search(columnSet, extraTableName, userInfoSearchCondition, extraSearchConditions, start, pageSize);
             total = columnValueDao.count(extraTableName);
         }else {
@@ -534,7 +541,7 @@ public class ColumnValueService {
                     }
                 }
             }
-            dataJson.put("extraData", extraData);
+            dataJson.put("extra_data", extraData);
             dataJa.add(dataJson);
         }
         resultJson.put("users", dataJa);

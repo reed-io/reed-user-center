@@ -8,7 +8,7 @@ public class AppUserInfo {
     private String appCode;
 
     @JSONField(name = "user_id")
-    private String userId;
+    private Long userId;
     private String name;
     private String email;
     private String mobile;
@@ -21,11 +21,11 @@ public class AppUserInfo {
         this.appCode = appCode;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

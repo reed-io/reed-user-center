@@ -8,7 +8,6 @@ import org.reed.core.user.entity.AppUserInfo;
 import org.reed.core.user.utils.Entity2JsonUtils;
 import org.reed.utils.CollectionUtil;
 import org.reed.utils.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,14 +43,14 @@ public class AppUserService {
 	 * @return
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public JSONArray addAppUsers(String appCode, List<String> userIds) {
+	public JSONArray addAppUsers(String appCode, List<Long> userIds) {
 		// 无效应用用户
 		appUserMapper.deleteNotExistsAppUsers();
 		// 应用用户已关联
-		Set<String> appUserIdSet = appUserMapper.selectAppUsers(appCode, userIds).stream()
+		Set<Long> appUserIdSet = appUserMapper.selectAppUsers(appCode, userIds).stream()
 				.map(AppUserInfo::getUserId).collect(Collectors.toSet());
 		// 存在用户
-		Set<String> existsUserIdSet =
+		Set<Long> existsUserIdSet =
 				new HashSet<>(appUserMapper.selectUsers(userIds));
 		List<AppUserInfo> saveAppUsers = new ArrayList<>();
 		userIds.forEach(item -> {
@@ -81,7 +80,7 @@ public class AppUserService {
 	 * @param userIds
 	 * @return
 	 */
-	public JSONArray appUsers(String appCode, List<String> userIds) {
+	public JSONArray appUsers(String appCode, List<Long> userIds) {
 		// 无效应用用户
 		appUserMapper.deleteNotExistsAppUsers();
 		return Entity2JsonUtils.parseJson(appUserMapper.selectAppUsers(appCode, userIds));
@@ -89,24 +88,24 @@ public class AppUserService {
 
 	public void addUsers(String appCode, JSONArray userJa) throws UserCenterException {
 		String extraTableName = tablePrefix + appCode;
-		List<String> userIds = new ArrayList<>();
+		List<Long> userIds = new ArrayList<>();
 
 		for (int i = 0; i < userJa.size(); ++i) {
-			String userIdStr = userJa.getString(i);
-			if (!StringUtil.isEmpty(userIdStr)) {
-				userIds.add(userIdStr);
+			Long userId = userJa.getLong(i);
+			if (userId != null) {
+				userIds.add(userId);
 			}
 		}
 
 //		用户是否存在于用户中心主表
-		int staffInfoUserCount = appUserMapper.countUsers(userIds);
-		if (staffInfoUserCount != userIds.size()) {
+		int userInfoUserCount = appUserMapper.countUsers(userIds);
+		if (userInfoUserCount != userIds.size()) {
 			throw new UserCenterException(UserCenterErrorCode.USER_NOT_EXIST_USER_CENTER);
 		}
 //		是否有用户已经存在应用
-		List<String> extraUserIds = appUserMapper.countExtraUsers(userIds, extraTableName);
+		List<Long> extraUserIds = appUserMapper.countExtraUsers(userIds, extraTableName);
 		if (extraUserIds.size() > 0) {
-			userIds = (List<String>) CollectionUtil.subtract(userIds, extraUserIds);
+			userIds = (List<Long>) CollectionUtil.subtract(userIds, extraUserIds);
 		}
 		if (userIds.size() > 0) {
 			appUserMapper.insertUsers(userIds, extraTableName);
@@ -114,7 +113,7 @@ public class AppUserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public int removeAppStaff(String appCode, String userId) {
+	public int removeAppUser(String appCode, Long userId) {
 		String tableName = tablePrefix + appCode;
 		String selectAppUser = appUserMapper.selectAppUser(tableName, userId);
 		if (!StringUtil.isEmpty(selectAppUser)) {

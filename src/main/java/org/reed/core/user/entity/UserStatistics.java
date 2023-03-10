@@ -7,6 +7,17 @@ public class UserStatistics {
     private int lock;
     private int increase;
 
+    @Override
+    public String toString() {
+        return "UserStatistics{" +
+                "id=" + id +
+                ", day='" + day + '\'' +
+                ", total=" + total +
+                ", lock=" + lock +
+                ", increase=" + increase +
+                '}';
+    }
+
     public long getId() {
         return id;
     }

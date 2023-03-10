@@ -52,7 +52,7 @@ public class ColumnDefineService {
 	 * @param appCode
 	 * @return
 	 */
-	public int createExtTable(String appCode, String userId) {
+	public int createExtTable(String appCode, Long userId) {
 		String tableName = tablePrefix + appCode;
 		try {
 			long startTime = System.currentTimeMillis();
@@ -135,7 +135,7 @@ public class ColumnDefineService {
 	 * @return
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int addColumn(String appCode, String userId, ColumnDefine columnDefine) {
+	public int addColumn(String appCode, Long userId, ColumnDefine columnDefine) {
 		String tableName = tablePrefix + appCode;
 //		Map<String, ColumnDefine> columnMap = ExtDefineApplication.tableColumnMap.get(tableName);
 		Map<String, ColumnDefine> columnMap = getColumnMap(tableName);
@@ -200,7 +200,7 @@ public class ColumnDefineService {
 	 * @return
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int modifyColumn(String appCode, String userId, ColumnDefine newColumn, String columnCodeNew) {
+	public int modifyColumn(String appCode, Long userId, ColumnDefine newColumn, String columnCodeNew) {
 		String tableName = tablePrefix + appCode;
 //		Map<String, ColumnDefine> columnMap = ExtDefineApplication.tableColumnMap.get(tableName);
 		Map<String, ColumnDefine> columnMap = getColumnMap(tableName);
@@ -226,22 +226,19 @@ public class ColumnDefineService {
 
 		ColumnDefine oldColumn = columnMap.get(newColumn.getColumnCode().toLowerCase());
 
-		boolean canTranType = false;
-		if (oldColumn.getColumnType().equals(newColumn.getColumnType())
+		boolean canTranType = oldColumn.getColumnType().equals(newColumn.getColumnType())
 				|| (oldColumn.getColumnType().equals(ColumnDataTypeEnum.DATE.code)
-						&& newColumn.getColumnType().equals(ColumnDataTypeEnum.DATETIME.code))
+				&& newColumn.getColumnType().equals(ColumnDataTypeEnum.DATETIME.code))
 				|| (oldColumn.getColumnType().equals(ColumnDataTypeEnum.DATETIME.code)
-						&& newColumn.getColumnType().equals(ColumnDataTypeEnum.DATE.code))
+				&& newColumn.getColumnType().equals(ColumnDataTypeEnum.DATE.code))
 				|| (oldColumn.getColumnType().equals(ColumnDataTypeEnum.INTEGER.code)
-						&& newColumn.getColumnType().equals(ColumnDataTypeEnum.VARCHAR.code))
+				&& newColumn.getColumnType().equals(ColumnDataTypeEnum.VARCHAR.code))
 				|| (oldColumn.getColumnType().equals(ColumnDataTypeEnum.NUMBER.code)
-						&& newColumn.getColumnType().equals(ColumnDataTypeEnum.VARCHAR.code))
+				&& newColumn.getColumnType().equals(ColumnDataTypeEnum.VARCHAR.code))
 				|| (oldColumn.getColumnType().equals(ColumnDataTypeEnum.NUMBER.code)
-						&& newColumn.getColumnType().equals(ColumnDataTypeEnum.INTEGER.code))
+				&& newColumn.getColumnType().equals(ColumnDataTypeEnum.INTEGER.code))
 				|| (oldColumn.getColumnType().equals(ColumnDataTypeEnum.INTEGER.code)
-						&& newColumn.getColumnType().equals(ColumnDataTypeEnum.NUMBER.code))) {
-			canTranType = true;
-		}
+				&& newColumn.getColumnType().equals(ColumnDataTypeEnum.NUMBER.code));
 
 		boolean updateNullData = false;
 		// 数据由允许为空 ---> 不允许为空
@@ -350,7 +347,7 @@ public class ColumnDefineService {
 	 * @param columnCode
 	 * @return
 	 */
-	public int removeColumn(String appCode, String userId, String columnCode) {
+	public int removeColumn(String appCode, Long userId, String columnCode) {
 		String tableName = tablePrefix + appCode;
 //		Map<String, ColumnDefine> columnMap = ExtDefineApplication.tableColumnMap.get(tableName);
 		Map<String, ColumnDefine> columnMap = getColumnMap(tableName);
@@ -693,7 +690,7 @@ public class ColumnDefineService {
 		return sqlBuffer.toString();
 	}
 
-	public void insertOperateLog(String userId, String appCode, String tableName, String operateSql, Long costTime) {
+	public void insertOperateLog(Long userId, String appCode, String tableName, String operateSql, Long costTime) {
 		ColumnOperateLog operateLog = new ColumnOperateLog();
 		operateLog.setUserId(userId);
 		operateLog.setAppCode(appCode);

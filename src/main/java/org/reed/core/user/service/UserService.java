@@ -260,13 +260,21 @@ public class UserService {
         for (int i = 0; i < userIdJa.size(); i++) {
             userIds.add(userIdJa.getLong(i));
         }
+        List<UserInfo> userInfos = userInfoMapper.selectByUserIds(userIds);
+        List<Long> batchLockUserIds = new ArrayList<>();
+        for (UserInfo userInfo : userInfos) {
+            if (userInfo.getUnlockTime() == null || userInfo.getUnlockTime().after(new Date())) {
+                batchLockUserIds.add(userInfo.getUserId());
+            }
+        }
+        System.err.println(batchLockUserIds);
 //        UserInfo userInfo = new UserInfo();
 //        userInfo.setUnlockTime(new Date());
 //        userInfo.setLockReason(null);
 //        userInfo.setUpdateTime(new Date());
-        int num = userInfoMapper.batchUnlock(userIds, new Date());
+        int num = userInfoMapper.batchUnlock(batchLockUserIds, new Date());
 //        int num = userInfoMapper.batchUpdateUserUnLockStatus(userIds, UserCenterConstants.TRUE, lockReason, new Date(), new Date());
-        List<UserLockInfo> list = userIds.stream().map(userId -> {
+        List<UserLockInfo> list = batchLockUserIds.stream().map(userId -> {
             UserLockInfo userLockInfo = new UserLockInfo();
             userLockInfo.setUserId(userId);
             userLockInfo.setAppCode("user-center");
@@ -407,8 +415,8 @@ public class UserService {
     public boolean checkEmployeeNumberCanUse(String employeeNumber) {
         UserInfo userInfo = new UserInfo();
         userInfo.setEmployeeNumber(employeeNumber);
-        userInfo.setTempEmployeeNumber(employeeNumber);
         int count = userInfoMapper.count(userInfo);
+        System.err.println(count);
         return count == 0;
     }
 
