@@ -15,6 +15,7 @@ import org.yaml.snakeyaml.util.UriEncoder;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -98,32 +99,5 @@ public class AmazonS3StandardStorage {
     public String uploadFile(String bucketName, MultipartFile file) throws ReedMinioException {
         return uploadFile(bucketName, file, false);
     }
-
-
-//    public InputStream getFileInputStream(String filePath) throws ReedBaseException, RuntimeException {
-//        String[] split = filePath.split("/");
-//        if (split.length < 2) {
-//            throw new ReedMinioException();
-//        }
-//        String bucket = split[0];
-//        StringBuilder fileNameBuilder = new StringBuilder();
-//        for (int i = 1; i < split.length; i++) {
-//            fileNameBuilder.append(split[i]);
-//        }
-//        String filename = fileNameBuilder.toString();
-//        boolean bucketExist = bucketExist(bucket);
-//        if (!bucketExist) {
-//            throw new ReedMinioException();
-//        }
-//        try {
-//            GetObjectResponse object = minioClient.statObject(GetObjectArgs.builder().bucket(bucket).object(filename).build());
-//
-//            return null;
-//        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-//                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-//                 XmlParserException e) {
-//            throw new ReedMinioException();
-//        }
-//    }
 
 }

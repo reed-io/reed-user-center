@@ -28,6 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -209,6 +212,10 @@ public class UserService {
         return lockCount;
     }
 
+    public static void main(String[] args) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        System.err.println(new String(StringUtil.encodeHex(StringUtil.sha1("root_admin"))));
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public int batchLockUser(JSONArray userIdJa, String lockReason, Date unlockTime, Long operatorUserId,
                              String clientType) {
@@ -361,6 +368,7 @@ public class UserService {
             throw new UserCenterException(UserCenterErrorCode.USER_AVATAR_UPLOAD_ERROR);
         }
     }
+
 
 
 

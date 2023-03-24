@@ -46,7 +46,6 @@ spring:
       type: batch
 
 
-
 reed:
   user-center:
     auto-lock-time: 1
@@ -61,4 +60,5 @@ reed:
     database: reed_user_center
     prefix: user_ext_value_
     primary-key: user_id
-
+server:
+  port: 8083

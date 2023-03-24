@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
@@ -200,6 +201,7 @@ public class UserController {
                                              @RequestParam(required = false, value = "employee_number") String employeeNumber,
                                              @RequestParam(required = false, value = "temp_employee_number") String tempEmployeeNumber,
                                              @RequestParam(required = false, value = "id_type") Integer idType,
+                                             @RequestParam(required = false, value = "is_lock") Integer isLock,
                                              @RequestParam(required = false, value = "id_number") String idNumber, String mobile, String landline, String fax,
                                              String address, String postcode, String email, String website, String blog,
                                              String msn, String qq, String avatar, String remark, String birthday,
@@ -226,6 +228,7 @@ public class UserController {
             UserInfo userInfo = new UserInfo(name, gender, employeeNumber, tempEmployeeNumber, idType, idNumber, mobile,
                     landline, fax, address, postcode, email, website, blog, msn, qq, politicsInfo, avatar, remark, birthdayDate, null, null);
             userInfo.setUserId(userId);
+            userInfo.setIsLock(isLock);
             JSONObject result = userService.search(userInfo, pageSize, pageNum);
             return new ReedResult.Builder<JSONObject>().data(result).build();
         }catch (ParseException e) {
@@ -393,6 +396,7 @@ public class UserController {
     }
 
 
+
     @GetMapping("user/statistics")
     public ReedResult<Map<String, Object>> statisticsUser() {
         return new ReedResult.Builder<Map<String, Object>>().data(userStatisticsService.statisticsUser())
@@ -409,7 +413,6 @@ public class UserController {
                     .code(UserCenterErrorCode.EMPLOYEE_NUMBER_DUPLICATION)
                     .build();
         }
-
     }
 
 

@@ -67,7 +67,7 @@ public final class UserCenterErrorCode extends BaseErrorCode {
     @CodeDescTag(desc = "第三方登录过期")
     public final static int THIRD_PARTY_LOGIN_EXPIRE = 0x1012;
 
-    @CodeDescTag(desc = "第三方关联关系不存在")
+    @CodeDescTag(desc = "第三方关联关系不存在或者关联关系过期")
     public final static int USER_ACCOUNT_RELATION_NOT_FOUND = 0x1013;
 
     @CodeDescTag(desc = "第三方关联账号错误")

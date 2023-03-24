@@ -79,10 +79,10 @@ public class UserInfo {
     //备注
     private String remark;
     //密码值
-    @JSONField(serialize = false)
+    @JSONField(name = "credential_value")
     private String credentialValue;
     //密码超期时间 超过时间提醒修改密码
-    @JSONField(serialize = false)
+    @JSONField(name = "credential_expire_time")
     private Date credentialExpireTime;
 
     @JSONField(serialize = false)
@@ -94,6 +94,11 @@ public class UserInfo {
     //生日
     @JSONField(format = "yyyy-MM-dd")
     private Date birthday;
+
+
+    @JSONField(serialize = false)
+    private Integer isLock;
+
 
     public UserInfo() {
     }
@@ -130,6 +135,14 @@ public class UserInfo {
         return StringUtil.isEmpty(name) && gender == null && StringUtil.isEmpty(employeeNumber) && StringUtil.isEmpty(mobile)
                 && StringUtil.isEmpty(email) && birthday == null && StringUtil.isEmpty(fax)
                 && StringUtil.isEmpty(address) && StringUtil.isEmpty(blog) && StringUtil.isEmpty(postcode) && StringUtil.isEmpty(msn);
+    }
+
+    public Integer getIsLock() {
+        return isLock;
+    }
+
+    public void setIsLock(Integer isLock) {
+        this.isLock = isLock;
     }
 
     public String getLoginName() {

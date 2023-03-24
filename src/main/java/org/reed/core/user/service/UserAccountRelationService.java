@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.Date;
 
 @Service
 public class UserAccountRelationService {
@@ -90,6 +91,15 @@ public class UserAccountRelationService {
     public int deleteUserAccountRelation(Long userId, LoginPlatformEnum loginPlatformEnum) {
         String tableName = accountRelationPrefix + loginPlatformEnum.suffix;
         return userAccountRelationMapper.deleteByUserId(userId, tableName);
+    }
+
+    public boolean validationUserAccount(Long userId, LoginPlatformEnum loginPlatformEnum, String accountId) {
+        String tableName = accountRelationPrefix + loginPlatformEnum.suffix;
+        UserAccountRelation userAccountRelation = userAccountRelationMapper.selectByUserId(tableName, userId);
+        if (userAccountRelation == null) {
+            return false;
+        }
+        return userAccountRelation.getAccountId().equals(accountId) && userAccountRelation.getExpireTime().after(new Date());
     }
 }
 

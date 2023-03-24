@@ -2,6 +2,7 @@ package org.reed.core.user.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import org.reed.core.user.define.UserCenterErrorCode;
 import org.reed.core.user.define.enumeration.LoginPlatformEnum;
 import org.reed.core.user.entity.UserAccountRelation;
 import org.reed.core.user.service.UserAccountRelationService;
@@ -61,5 +62,20 @@ public class UserAccountRelationController {
         JSONObject result = new JSONObject();
         result.put("account_relations", Entity2JsonUtils.parseJson(userAccountRelations));
         return new ReedResult.Builder<JSONObject>().data(result).build();
+    }
+
+    @GetMapping("/relation/validation")
+    public ReedResult<String> validationAccountRelation(@RequestParam(required = false, value = "account_id") String accountId,
+                                                        @RequestParam(required = false, value = "user_id") Long userId, String platform) {
+        try {
+            LoginPlatformEnum thirdPartyLoginEnum = LoginPlatformEnum.getThirdPartyLoginEnum(platform);
+            boolean b = userAccountRelationService.validationUserAccount(userId, thirdPartyLoginEnum, accountId);
+            if (b) {
+                return new ReedResult<>();
+            }
+            return new ReedResult.Builder<String>().code(UserCenterErrorCode.USER_ACCOUNT_RELATION_NOT_FOUND).build();
+        }catch (ReedBaseException e) {
+            return new ReedResult.Builder<String>().code(e.getErrorCode()).build();
+        }
     }
 }
