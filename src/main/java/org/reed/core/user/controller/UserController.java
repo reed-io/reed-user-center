@@ -13,6 +13,7 @@ import org.reed.define.CodeDescTranslator;
 import org.reed.entity.ReedResult;
 import org.reed.exceptions.ReedBaseException;
 import org.reed.log.ReedLogger;
+import org.reed.utils.CollectionUtil;
 import org.reed.utils.EnderUtil;
 import org.reed.utils.StringUtil;
 import org.reed.utils.TimeUtil;
@@ -22,8 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -190,8 +190,12 @@ public class UserController {
 
     @GetMapping("user/{user_id}")
     public ReedResult<JSONObject> userInfo(@PathVariable("user_id") Long userId) {
+        UserInfo userInfo = userService.getUserInfo(userId);
+        if (userInfo == null) {
+            return new ReedResult.Builder<JSONObject>().code(UserCenterErrorCode.USER_NOT_EXIST_USER_CENTER).build();
+        }
         return new ReedResult.Builder<JSONObject>()
-                .data(Entity2JsonUtils.parseJson(userService.getUserInfo(userId)))
+                .data(Entity2JsonUtils.parseJson(userInfo))
                 .build();
     }
 
@@ -205,6 +209,7 @@ public class UserController {
                                              @RequestParam(required = false, value = "id_number") String idNumber, String mobile, String landline, String fax,
                                              String address, String postcode, String email, String website, String blog,
                                              String msn, String qq, String avatar, String remark, String birthday,
+                                             @RequestParam(required = false, value = "is_enable") Integer isEnable,
                                              @RequestParam(required = false, value = "politics_info") String politicsInfo,
                                              @RequestParam(required = false, value = "page_size") Integer pageSize,
                                              @RequestParam(required = false, value = "page_num") Integer pageNum) {
@@ -229,6 +234,7 @@ public class UserController {
                     landline, fax, address, postcode, email, website, blog, msn, qq, politicsInfo, avatar, remark, birthdayDate, null, null);
             userInfo.setUserId(userId);
             userInfo.setIsLock(isLock);
+            userInfo.setIsEnable(isEnable);
             JSONObject result = userService.search(userInfo, pageSize, pageNum);
             return new ReedResult.Builder<JSONObject>().data(result).build();
         }catch (ParseException e) {
@@ -333,6 +339,7 @@ public class UserController {
         }
 
     }
+
 
     @PutMapping("/user/batch_unlock")
     public ReedResult<String> batchUnlockUser(@RequestParam(value = "user_ids",required = false) String userIds,

@@ -45,7 +45,6 @@ spring:
       poll-timeout: 1000
       type: batch
 
-
 reed:
   user-center:
     auto-lock-time: 1
