@@ -278,7 +278,7 @@ public interface UserInfoMapper {
             "<if test=\"idType != null\">",
             " and `id_type` = #{idType} ",
             "</if>",
-            "<if test=\"idNumber != null\">",
+            "<if test=\"idNumber != null and idNumber != ''\">",
             " and `id_number` = #{idNumber} ",
             "</if>",
             "<if test=\"employeeNumber != null and employeeNumber != ''\">",

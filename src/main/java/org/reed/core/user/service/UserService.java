@@ -123,11 +123,24 @@ public class UserService {
         return true;
     }
 
+    public void setIsLock(UserInfo userInfo) {
+        if (userInfo.getUnlockTime() != null) {
+            if (userInfo.getUnlockTime().after(new Date())) {
+                userInfo.setIsLock(1);
+            }else {
+                userInfo.setIsLock(0);
+            }
+        }else {
+            userInfo.setIsLock(0);
+        }
+    }
+
 
     public JSONObject search(UserInfo userInfo, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
         List<UserInfo> userInfos = userInfoMapper.selectByConditions(userInfo);
         PageInfo<UserInfo> userInfoPageInfo = new PageInfo<>(userInfos);
+        userInfoPageInfo.getList().forEach(this::setIsLock);
         JSONObject result = new JSONObject();
         result.put("users", Entity2JsonUtils.parseJson(userInfoPageInfo.getList()));
         result.put("total", userInfoPageInfo.getTotal());
@@ -164,7 +177,9 @@ public class UserService {
     }
 
     public UserInfo getUserInfo(Long userId) {
-        return userInfoMapper.selectByPrimaryKey(userId);
+        UserInfo userInfo = userInfoMapper.selectByPrimaryKey(userId);
+        setIsLock(userInfo);
+        return userInfo;
     }
 
     @Transactional(rollbackFor = Exception.class)

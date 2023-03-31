@@ -96,7 +96,7 @@ public class UserInfo {
     private Date birthday;
 
 
-    @JSONField(serialize = false)
+    @JSONField(name = "is_lock")
     private Integer isLock;
 
 
@@ -140,6 +140,7 @@ public class UserInfo {
     public Integer getIsLock() {
         return isLock;
     }
+
 
     public void setIsLock(Integer isLock) {
         this.isLock = isLock;
